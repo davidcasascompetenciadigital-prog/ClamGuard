@@ -101,6 +101,25 @@ namespace ClamGuard
             applyMode.Click += ApplyMode_Click;
             modeTab.Controls.Add(applyMode);
 
+            RoundedButton resetDefaults = new RoundedButton();
+            resetDefaults.Text = "Restaurar por defecto";
+            resetDefaults.Style = ButtonStyle.Secondary;
+            resetDefaults.BackColor = Theme.Surface;
+            resetDefaults.Size = new Size(170, 34);
+            resetDefaults.Location = new Point(420, 28);
+            resetDefaults.Click += delegate
+            {
+                if (MessageBox.Show(this, "Se restaurara la configuracion por defecto del cortafuegos. Continuar?",
+                    "Cortafuegos", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) != DialogResult.Yes) return;
+                string error;
+                if (FirewallState.ResetToDefaults(out error))
+                    MessageBox.Show(this, "Configuracion restaurada.", "Cortafuegos", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else
+                    MessageBox.Show(this, error, "Cortafuegos", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                RefreshStatus();
+            };
+            modeTab.Controls.Add(resetDefaults);
+
             Label modeNote = new Label();
             modeNote.Text = L10n.T("Normal: bloquea entrada, permite salida. Permitir salidas: permite todo saliente. Bloquear todo: bloquea entrada y salida (solo excepciones). Desactivado: permite todo.");
             modeNote.Font = Theme.Ui(8.25f, FontStyle.Regular);

@@ -7,6 +7,10 @@ namespace ClamGuard
 {
     public static class Firewall
     {
+        private static string StateFile
+        {
+            get { return Path.Combine(AppPaths.DataDir, "firewall-state.txt"); }
+        }
         public static bool IsElevated { get { return Elevation.IsElevated; } }
         public static bool RunNetsh(string arguments, out string output, out string error)
         {
@@ -45,6 +49,7 @@ namespace ClamGuard
             }
             if (mode == "allowall")
             {
+                FirewallState.RestoreEnabledRules();
                 string o, e;
                 if (!RunNetsh("advfirewall set allprofiles state off", out o, out e)) { error = e; return false; }
                 RunNetsh("advfirewall firewall set rule all new enable=yes", out o, out e);
@@ -55,12 +60,14 @@ namespace ClamGuard
                 string o, e;
                 if (!RunNetsh("advfirewall set allprofiles state on", out o, out e)) { error = e; return false; }
                 if (!RunNetsh("advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound", out o, out e)) { error = e; return false; }
+                FirewallState.SaveEnabledRules();
                 // Deshabilitar reglas existentes para que el bloqueo sea efectivo (estilo TinyWall)
                 RunNetsh("advfirewall firewall set rule all new enable=no", out o, out e);
                 return true;
             }
             // active (default): block inbound, allow outbound
             {
+                FirewallState.RestoreEnabledRules();
                 string o, e;
                 if (!RunNetsh("advfirewall set allprofiles state on", out o, out e)) { error = e; return false; }
                 if (!RunNetsh("advfirewall set allprofiles firewallpolicy blockinbound,allowoutbound", out o, out e)) { error = e; return false; }

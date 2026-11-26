@@ -33,6 +33,7 @@ namespace ClamGuard
         private RoundedButton _btnSignatures;
         private RoundedButton _btnIoc;
         private RoundedButton _btnFirewall;
+        private RoundedButton _btnAudit;
         private RoundedButton _btnStop;
         private LinkLabel _lnkChoose;
         private LinkLabel _lnkFolders;
@@ -456,27 +457,30 @@ namespace ClamGuard
             cards.Dock = DockStyle.Fill;
             cards.BackColor = Theme.Background;
             cards.Margin = new Padding(0);
-            cards.ColumnCount = 5;
+            cards.ColumnCount = 6;
             cards.RowCount = 1;
-            for (int i = 0; i < 5; i++)
-                cards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 20f));
+            for (int i = 0; i < 6; i++)
+                cards.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 16.666f));
             cards.RowStyles.Add(new RowStyle(SizeType.Percent, 100f));
 
             CardPanel scanCard = BuildScanCard();
-            scanCard.Margin = new Padding(0, 0, 10, 0);
+            scanCard.Margin = new Padding(0, 0, 8, 0);
             CardPanel residentCard = BuildResidentCard();
-            residentCard.Margin = new Padding(0, 0, 10, 0);
+            residentCard.Margin = new Padding(0, 0, 8, 0);
             CardPanel signatureCard = BuildSignatureCard();
-            signatureCard.Margin = new Padding(0, 0, 10, 0);
+            signatureCard.Margin = new Padding(0, 0, 8, 0);
             CardPanel iocCard = BuildIocCard();
-            iocCard.Margin = new Padding(0, 0, 10, 0);
+            iocCard.Margin = new Padding(0, 0, 8, 0);
             CardPanel firewallCard = BuildFirewallCard();
-            firewallCard.Margin = new Padding(0, 0, 0, 0);
+            firewallCard.Margin = new Padding(0, 0, 8, 0);
+            CardPanel auditCard = BuildAuditCard();
+            auditCard.Margin = new Padding(0, 0, 0, 0);
             cards.Controls.Add(scanCard, 0, 0);
             cards.Controls.Add(residentCard, 1, 0);
             cards.Controls.Add(signatureCard, 2, 0);
             cards.Controls.Add(iocCard, 3, 0);
             cards.Controls.Add(firewallCard, 4, 0);
+            cards.Controls.Add(auditCard, 5, 0);
             _root.Controls.Add(cards, 0, 1);
 
             CardPanel activity = BuildActivityCard();
@@ -529,7 +533,7 @@ namespace ClamGuard
 
             FlowLayoutPanel links = new FlowLayoutPanel();
             links.Dock = DockStyle.Right;
-            links.Width = 620;
+            links.Width = 700;
             links.FlowDirection = FlowDirection.RightToLeft;
             links.WrapContents = false;
             links.BackColor = Theme.Surface;
@@ -542,8 +546,9 @@ namespace ClamGuard
             LinkLabel ioc = Links.Create(L10n.T("menu.ioc"), delegate { ShowIoc(); });
             LinkLabel firewall = Links.Create(L10n.T("menu.firewall"), delegate { ShowFirewall(); });
             LinkLabel updates = Links.Create("Actualizaciones", delegate { CheckUpdates(); });
+            LinkLabel audit = Links.Create("Auditoría", delegate { ShowAudit(); });
             LinkLabel uninstall = Links.Create(L10n.T("menu.uninstall"), delegate { ShowUninstall(); });
-            foreach (LinkLabel link in new LinkLabel[] { about, quarantine, settings, ioc, firewall, updates, uninstall })
+            foreach (LinkLabel link in new LinkLabel[] { about, quarantine, settings, ioc, firewall, updates, audit, uninstall })
             {
                 link.BackColor = Theme.Surface;
                 link.Margin = new Padding(16, 0, 0, 0);
@@ -768,6 +773,26 @@ namespace ClamGuard
             card.Controls.Add(_btnFirewall);
 
             card.Resize += delegate { _btnFirewall.Width = Math.Max(100, card.ClientSize.Width - 40); };
+            return card;
+        }
+
+        private CardPanel BuildAuditCard()
+        {
+            Label status;
+            CardPanel card = CreateBaseCard(Theme.GlyphInfo, Theme.AccentSoft, Theme.Accent,
+                "Auditoría", "Auditoría de archivos de Windows.", out status);
+            status.Text = "Eventos de acceso a archivos";
+
+            _btnAudit = new RoundedButton();
+            _btnAudit.Text = "Abrir auditoría";
+            _btnAudit.Style = ButtonStyle.Primary;
+            _btnAudit.Location = new Point(20, 160);
+            _btnAudit.Height = 38;
+            _btnAudit.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            _btnAudit.Click += delegate { ShowAudit(); };
+            card.Controls.Add(_btnAudit);
+
+            card.Resize += delegate { _btnAudit.Width = Math.Max(100, card.ClientSize.Width - 40); };
             return card;
         }
 
@@ -1163,6 +1188,7 @@ namespace ClamGuard
             _btnResident.Enabled = !busy;
             if (_btnIoc != null) _btnIoc.Enabled = !busy;
             if (_btnFirewall != null) _btnFirewall.Enabled = !busy;
+            if (_btnAudit != null) _btnAudit.Enabled = !busy;
             _bannerButton.Enabled = !busy;
             _lnkChoose.Enabled = !busy;
             _lnkFolders.Enabled = !busy;
@@ -1694,6 +1720,15 @@ namespace ClamGuard
         {
             if (_busy) return;
             using (FirewallDialog dialog = new FirewallDialog())
+            {
+                dialog.ShowDialog(this);
+            }
+        }
+
+        private void ShowAudit()
+        {
+            if (_busy) return;
+            using (AuditDialog dialog = new AuditDialog())
             {
                 dialog.ShowDialog(this);
             }

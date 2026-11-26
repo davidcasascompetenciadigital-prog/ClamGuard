@@ -81,7 +81,7 @@ if (-not $Test) {
     if (-not (Test-Path $langDest)) { New-Item -ItemType Directory -Path $langDest | Out-Null }
     Copy-Item (Join-Path $root 'lang\*.json') $langDest -Force -ErrorAction SilentlyContinue
     Copy-Item (Join-Path $root 'README.md') $dist -Force -ErrorAction SilentlyContinue
-    $zip = Join-Path $dist 'ClamGuard-1.1.3-win.zip'
+    $zip = Join-Path $dist 'ClamGuard-1.2.0-win.zip'
     if (Test-Path $zip) { Remove-Item $zip -Force }
     $items = @($out)
     $readme = Join-Path $dist 'README.md'

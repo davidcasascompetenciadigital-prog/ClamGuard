@@ -10,7 +10,7 @@ namespace ClamGuard
     public static class AppPaths
     {
         public const string ProductName = "ClamGuard";
-        public const string ProductVersion = "1.1.3";
+        public const string ProductVersion = "1.2.0";
         public const string ServiceName = "ClamGuardResident";
         public const string ServiceDisplayName = "ClamGuard Resident (ClamAV)";
         public const int ClamdPort = 3310;
